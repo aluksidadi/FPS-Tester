@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>DOM CSS3 Sprites Animation FPS Test</title>
+	<script src="lib/jquery-1.7.1.min.js"></script>
+	<script src="lib/Stats.js"></script>
+	<style>
+    #scene {
+      width: 800px;
+      height: 600px;
+      position: relative;
+      top: 100px;
+      border: 1px solid #000;
+    }
+    #stop {
+      position: absolute;
+      top: 0;
+      font-size: 20px;
+      padding: 5px;
+      font-weight: bold;
+      background-color: #880000;
+      border: 1px solid #000;
+      color: #000;
+      text-align: center;
+      cursor: pointer;
+    }
+    .character {
+      position: absolute;
+      background: url(./images/bird.png);
+      width: 180px;
+      height: 123px;
+      -webkit-animation-name: sprite;
+      -webkit-animation-duration: 1s;
+      -webkit-animation-iteration-count: infinite;
+      -webkit-animation-timing-function: step-start;
+      -moz-animation-name: sprite;
+      -moz-animation-duration: 1s;
+      -moz-animation-iteration-count: infinite;
+      -moz-animation-timing-function: step-start;
+      -ms-animation-name: sprite;
+      -ms-animation-duration: 1s;
+      -ms-animation-iteration-count: infinite;
+      -ms-animation-timing-function: step-start;
+    }  
+    @-webkit-keyframes sprite {
+      0%, 25.02%, 50%, 75.02% {
+        background-position: 0 0;
+      }
+      8.34%, 33.34%, 58.34%, 83.35% {
+        background-position: 180px 0;
+      }
+      16.67%, 41.68%, 66.68%, 91.68% {
+        background-position: 360px 0;
+      }
+    }
+    @-moz-keyframes sprite {
+      0%, 25.02%, 50%, 75.02% {
+        background-position: 0 0;
+      }
+      8.34%, 33.34%, 58.34%, 83.35% {
+        background-position: 180px 0;
+      }
+      16.67%, 41.68%, 66.68%, 91.68% {
+        background-position: 360px 0;
+      }
+    }
+    @-ms-keyframes sprite {
+      0%, 25.02%, 50%, 75.02% {
+        background-position: 0 0;
+      }
+      8.34%, 33.34%, 58.34%, 83.35% {
+        background-position: 180px 0;
+      }
+      16.67%, 41.68%, 66.68%, 91.68% {
+        background-position: 360px 0;
+      }
+    }
+  </style>
+  <script>
+  var FPS = 0;
+  var OBJ_COUNT = 0;
+  var STATS = new Array();
+  var TIMER = null;
+  var LIMIT = 20;
+  var X = 0;
+  var Y = 0;
+  $(document).ready(function() {
+    LIMIT = prompt("Please enter your lowest FPS limit (Warning, if you enter less than 10, you might crash your browser)","10"); 
+    var stats = new Stats();
+
+    // Align top-left
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.right = '0px';
+    stats.domElement.style.top = '0px';
+
+    $('#fps').append( stats.domElement );
+
+    var regex = new RegExp(/^([0-9]+) FPS/);
+    setInterval( function () {
+
+        stats.update();
+        var test = $('#fps > div > div > div').html();
+        var match = regex.exec(test);
+        FPS = match != null ? match[1] : 0;
+    }, 1000 / 60 );
+    start_test();
+  });
+
+  var start_test = function() {
+    TIMER = setInterval(add_obj, 100);
+  }
+
+  var stop_test = function() {
+    clearInterval(TIMER);
+    alert("You've reached " +FPS+ " FPS after " +OBJ_COUNT+ "objects added!");
+  }
+
+  var add_obj = function() {
+    $('#scene').append('<div class="character" style="left: '+X+'px; top: '+Y+'px;"></div>');
+    X += 50;
+    if (X > 600) {
+      X = 0;
+      Y += 50;
+      if (Y > 450) { 
+        Y = 0;
+      }
+    }
+    $('#obj_count').html(OBJ_COUNT);
+
+    if (++OBJ_COUNT % 100 == 0) {
+      track_stats();
+    }
+    if (OBJ_COUNT > 100 && FPS <= LIMIT) {
+      stop_test();
+    }
+  }
+
+  var track_stats = function() {
+    var stats = {
+      fps: FPS,
+      obj_count: OBJ_COUNT
+    }
+    STATS.push(stats);
+    console.log('obj count: '+ OBJ_COUNT+ ' - fps: '+FPS);
+  }
+  </script>
+</head>
+<body>
+<div id='fps'></div>
+<div id='stop' onclick='stop_test();'>CLICK TO STOP!<br>Objects Count: <span id='obj_count'>0</span></div>
+<div id='scene'></div>
+</body>
+</html>
